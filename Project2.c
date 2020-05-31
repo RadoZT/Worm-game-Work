@@ -23,7 +23,6 @@ int turns0;
 char input;
 int lifes;
 int i, j;
-char l;
 
 
 
