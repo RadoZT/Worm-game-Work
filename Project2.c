@@ -21,7 +21,7 @@ int length;
 int len;
 int turns0;
 char input;
-int lifes;
+unsigned int lifes;
 int i, j;
 
 
@@ -53,7 +53,7 @@ void WinGame();
 
 
 
-typedef struct{                                                        // Typedef, за да пишем по - малко
+typedef struct {                                                        // Typedef, за да пишем по - малко
     int x;
     int y;
     int direction;
@@ -61,7 +61,7 @@ typedef struct{                                                        // Typede
 
 coordinates head, turns[1000], apple, tail[30];                        // 1000 е максималният брой на завоите
 
-coordinates apple = {0 , 0 , 0};                                       // Инициализираме началните координати на ябълката
+coordinates apple = { 0 , 0 , 0 };                                       // Инициализираме началните координати на ябълката
 
 int main()
 {
@@ -81,7 +81,6 @@ int main()
     return 0;
 }
 
-
 // Закача координатите според нуждата
 void gotoxy(int x, int y)
 {
@@ -91,7 +90,8 @@ void gotoxy(int x, int y)
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-// Принтира началните надписи
+
+
 void Start()
 {
     gotoxy(24, 12);
@@ -178,7 +178,7 @@ void Cage()
         printf("%c", 222);
     }
 
-   
+
 }
 
 // За принтиране на ябълката
@@ -224,6 +224,7 @@ void Food()
 
 
 
+
 void Moving()
 {
 
@@ -237,15 +238,20 @@ void Moving()
 
 start:                                                                     // Този Lable ни задава точка, до която можем да достигнем чрез go to, това не може да се използва за презкачане през функции
     do {
-        
-        len = 0;                                                           // Променлива, която се използва основно от променливата 'length'
 
         Food();                                                            // Тази функция ни извиква ябълката
         Score();                                                           // Тази е за изписването на резултатът
-        Level();                                                           // Извиква функция за изписване на нивата
+        len = 0;                                                           // Извиква функция за изписване на нивата
+        for (i = 0; i < 30; i++)
+        {
+            tail[i].x = 0;
+            tail[i].y = 0;
+            if (i == length)
+                break;
+        }
+        Level();
         Sleep(200 - length * 5);                                           // Това задава скоростта на червя
         Cage();                                                            // Извиква функцията, която изчертава клетката
-
         for (j = 11; j < 30; j++)                                          // Използва се за изчистване, със system("cls") много мига
         {
             gotoxy(11, j);
@@ -263,36 +269,24 @@ start:                                                                     // Т
             Up();
         //********************
         EndGame();                                                         // Там са зададени границите на клетката
-
     } while (!kbhit());                                                    // Прави докато не е натиснато
-
     input = getch();
-
     if (input == 27)
     {
         system("cls");
         exit(0);
     }
 
-    if (input == 'p')
-    {
-        do
-        {
-            system("pause");
+    input = getch();
 
-        } while (kbhit());
-    }
-    
     // Чрез бутоните за задвижване се извикват техните функции
     if ((input == RIGHT && head.direction != LEFT && head.direction != RIGHT) || (input == LEFT && head.direction != RIGHT && head.direction != LEFT) || (input == UP && head.direction != DOWN && head.direction != UP) || (input == DOWN && head.direction != UP && head.direction != DOWN))
-    // ^^^^^ Ако е натиснато 'RIGHT' да не върви наляво или надясно, така е и за останалите ^^^^^
-    { 
+    {
         turns0++;                                                          // 'turns0' е един вид междинна променлива, тя е заедно с масива 'Turns' и при всеки завой прибавя по еднаединица докто не запълни масива
-
+        
         turns[turns0] = head;                                              // Задава координати на завоят спрямо главата
-
+        
         head.direction = input;                                            // Задава посока на главата спрямо бутонът, който сме натиснали
-
         if (input == UP)
             head.y++;
 
@@ -305,7 +299,7 @@ start:                                                                     // Т
         if (input == LEFT)
             head.x--;
 
-        goto start;                                                        // Използваме го, за да може да се изпълнява отново след всяка команда
+        goto start;
     }
 
     else
@@ -313,13 +307,14 @@ start:                                                                     // Т
         printf("\a");                                                      // Когато натиснем някой бутон повече от два пъти то изписква, един вид като грешка,
                                                                            // за да ни съобщи, че трябва да натиснем друго
         goto start;
+
     }
 }
 
 // Изписва нивото спрямо дължината
 void Level()
 {
-    
+
     if (length == 5)
     {
         for (i = length; i < 10; i++)
@@ -380,21 +375,19 @@ void Level()
 
 
 
-
 void Right()                                                            // 'Right' е първо, защото започваме надясно, мда естетика
 {
-
     for (i = 0; i <= (head.x - turns[turns0].x) && len < length; i++)
 
     {
 
-        gotoxy(tail[len].x, tail[len].y);
-
-            printf("%c", 254);
 
         tail[len].x = head.x - i;                                       // За да върви направо в дясната посока
-        tail[len].y = head.y;                                           // 'x' се изменя спрямо 'i', 'y' си остава същото
+        tail[len].y = head.y;                                            // 'x' се изменя спрямо 'i', 'y' си остава същото
 
+        gotoxy(tail[len].x, tail[len].y);
+
+        printf("%c", 254);
 
         len++;
     }
@@ -408,34 +401,35 @@ void Right()                                                            // 'Righ
 void Up()
 
 {
-        for (i = 0; i <= (turns[turns0].y - head.y) && len < length; i++)
+    for (i = 0; i <= (turns[turns0].y - head.y) && len < length; i++)
 
-        {
-            gotoxy(head.x, head.y + i);
+    {
 
-                printf("%c", 254);
+        gotoxy(head.x, head.y + i);
 
-            tail[len].x = head.x;
-            tail[len].y = head.y + i;
+        printf("%c", 254);
 
-            len++;
+        tail[len].x = head.x;
+        tail[len].y = head.y + i;
 
-        }
+        len++;
 
-        Turns();
+    }
 
-        if (!kbhit())
-            head.y--;
+    Turns();
+
+    if (!kbhit())
+        head.y--;
 }
 
 void Down()
 {
-
     for (i = 0; i <= (head.y - turns[turns0].y) && len < length; i++)
     {
+
         gotoxy(head.x, head.y - i);
 
-            printf("%c", 254);
+        printf("%c", 254);
 
         tail[len].x = head.x;
         tail[len].y = head.y - i;
@@ -450,13 +444,13 @@ void Down()
 
 void Left()
 {
-
     for (i = 0; i <= (turns[turns0].x - head.x) && len < length; i++)
 
     {
+
         gotoxy((head.x + i), head.y);
 
-            printf("%c", 254);
+        printf("%c", 254);
 
         tail[len].x = head.x + i;
         tail[len].y = head.y;
@@ -506,7 +500,7 @@ void Turns() {
                     gotoxy(tail[len].x, tail[len].y);                   // Тук задава преместване до координати на последното блокче от опашката
                     printf("%c", 254);                                  // и поставя символ - 254 ■ блокчето
                     len++;
-                                                                    // Дължината нараства, докато не е равно на дължинатa на опашката
+                    // Дължината нараства, докато не е равно на дължинатa на опашката
                     if (len == length)
                         break;
                 }
@@ -556,25 +550,26 @@ void Turns() {
 }
 
 
+
+
 void EndGame()
 {
-    int check = 0;
+    int i, check = 0;
 
     for (i = 4; i < length; i++)                                       // Стартира от 4, защото толкова са достатъчно, за да се захапе
     {
         if (tail[0].x == tail[i].x && tail[0].y == tail[i].y)
         {
-            check++;                                                   // Проверява дали нарастването на координатите на главата са равни на тези на опашката 
+            check++;                                                   // Проверява дали нарастването на координатите на главата са равни на тези на опашката
         }
     }
 
-    // Границите на клетката
     if (head.x <= 10 || head.x >= 70 || head.y <= 10 || head.y >= 30 || check != 0)
     {
 
         lifes--;
 
-        if (lifes >= 0) 
+        if (lifes >= 0)
 
         {
             head.x = 25;
@@ -585,9 +580,13 @@ void EndGame()
             Moving();
 
         }
-
+        else if (lifes <= -1)
+        {
+            exit(0);
+        }
         else
         {
+
             system("cls");
             printf("All lives Gone\n\nBetter Luck Next Time!\n\nPress any key to quit\n\nIf you want to play again press 'y' if you don't press 'n'");
             char inputAns;
@@ -607,9 +606,9 @@ void EndGame()
 
 }
 
-void WinGame() 
+void WinGame()
 {
-    
+
     system("cls");
 
     printf("You win! Congratulations!!!\n\nI hope we see again\n\nPress any kay to see next page\n\nIf you want to play again press 'y' if you don't press 'n'\n\n");
@@ -624,6 +623,6 @@ void WinGame()
     {
         exit(0);
     }
-    
-    
+
+
 }
